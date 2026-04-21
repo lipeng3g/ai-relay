@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Relay</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="hdr">
+    <div class="hdr-row">
+      <img src="../icons/icon48.png" class="logo-icon" alt="" />
+      <div class="logo">AI Relay</div>
+      <div class="version">v0.2</div>
+      <div class="capture-toggle" id="capture-toggle-wrap">
+        <span class="capture-label" id="capture-label" data-i18n="capture_off"></span>
+        <label class="toggle-sm">
+          <input type="checkbox" id="toggle-capture" />
+          <span class="toggle-slider-sm"></span>
+        </label>
+      </div>
+    </div>
+    <div class="sub" id="subtitle" data-i18n="loading"></div>
+    <div class="privacy-inline" data-i18n="privacy_inline"></div>
+  </header>
+
+  <nav class="tabs">
+    <input type="radio" id="tab1" name="tab" checked />
+    <label for="tab1" data-i18n="tab_current"></label>
+    <input type="radio" id="tab2" name="tab" />
+    <label for="tab2" data-i18n="tab_history"></label>
+    <input type="radio" id="tab3" name="tab" />
+    <label for="tab3" data-i18n="tab_settings"></label>
+
+    <!-- Panel: Current -->
+    <section class="panel panel-current">
+      <div id="current-info" class="info">—</div>
+      <div id="current-stats" class="stats-bar"></div>
+
+      <div class="compress-mode" id="compress-mode-hint">
+        <span class="mode-icon" id="mode-icon">📋</span>
+        <span id="mode-text"></span>
+      </div>
+
+      <button id="btn-relay" class="primary" disabled data-i18n="btn_relay"></button>
+      <div id="snapshot-size" class="snapshot-size"></div>
+      <div id="target-links" class="target-links" style="display:none;">
+        <div class="target-title" data-i18n="target_title"></div>
+        <div class="target-btns" id="target-btns"></div>
+      </div>
+      <div class="hint" id="main-hint"></div>
+    </section>
+
+    <!-- Panel: History -->
+    <section class="panel panel-recent">
+      <div id="recent-list" class="recent-list"></div>
+    </section>
+
+    <!-- Panel: Settings -->
+    <section class="panel panel-settings">
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="setting_llm_title"></div>
+        <div class="setting-desc" data-i18n="setting_llm_desc"></div>
+      </div>
+      <div class="setting-group setting-api">
+        <label class="setting-field-label" data-i18n="setting_api_url"></label>
+        <input type="text" id="api-endpoint" class="setting-input" placeholder="https://api.openai.com/v1" />
+        <label class="setting-field-label" data-i18n="setting_api_key"></label>
+        <input type="password" id="api-key" class="setting-input" placeholder="sk-..." />
+        <label class="setting-field-label" data-i18n="setting_model"></label>
+        <input type="text" id="api-model" class="setting-input" placeholder="gpt-4.1-mini" />
+        <div class="setting-api-hint" data-i18n="setting_api_hint"></div>
+        <div class="setting-api-actions">
+          <button id="btn-save-api" class="small-primary" data-i18n="btn_save"></button>
+          <button id="btn-test-api" class="small-secondary" data-i18n="btn_test"></button>
+          <span id="api-status" class="api-status"></span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="setting_turns_title"></div>
+        <div class="setting-desc" data-i18n="setting_turns_desc"></div>
+        <select id="select-recent-turns" class="setting-select">
+          <option value="2"></option>
+          <option value="3" selected></option>
+          <option value="5"></option>
+          <option value="8"></option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="setting_debug_title"></div>
+        <div class="setting-desc" data-i18n="setting_debug_desc"></div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-debug" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="setting_clear_title"></div>
+        <div class="setting-desc" data-i18n="setting_clear_desc"></div>
+        <button id="btn-clear-all" class="danger-btn" data-i18n="btn_clear"></button>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="setting_about"></div>
+        <div class="setting-desc">
+          <span data-i18n="about_desc"></span><br />
+          <a href="https://github.com/lipeng3g/ai-relay" target="_blank" id="link-github">GitHub</a>
+        </div>
+        <div class="privacy-notice">
+          <b data-i18n="privacy_title"></b>：<span data-i18n="privacy_text"></span>
+        </div>
+      </div>
+    </section>
+  </nav>
+
+  <!-- Snapshot preview (fullscreen) -->
+  <div id="preview-overlay" class="overlay" style="display:none;">
+    <div class="overlay-header">
+      <span data-i18n="preview_title"></span>
+      <span id="preview-stats" class="overlay-stats"></span>
+      <button id="btn-close-preview" class="close-btn">&times;</button>
+    </div>
+    <pre id="preview-text" class="preview-text"></pre>
+    <div class="overlay-footer">
+      <button id="btn-copy-from-preview" class="primary" data-i18n="btn_copy_clipboard"></button>
+    </div>
+  </div>
+
+  <!-- Session detail overlay -->
+  <div id="detail-overlay" class="overlay" style="display:none;">
+    <div class="overlay-header">
+      <span id="detail-title" data-i18n="detail_title"></span>
+      <button id="btn-close-detail" class="close-btn">&times;</button>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+    <div class="overlay-footer detail-footer">
+      <button id="btn-detail-snapshot" class="primary" data-i18n="btn_detail_snapshot"></button>
+      <button id="btn-detail-preview" class="secondary" data-i18n="btn_detail_preview"></button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="../lib/i18n.js"></script>
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/compress.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
