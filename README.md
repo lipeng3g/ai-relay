@@ -27,6 +27,7 @@ Free-tier users constantly rotate between ChatGPT, Claude, and Grok to dodge usa
 | ChatGPT (chatgpt.com) | ✅ | ✅ |
 | Claude (claude.ai) | ✅ | ✅ |
 | Grok (grok.com) | ✅ | ✅ |
+| Gemini (gemini.google.com) | ✅ | ✅ |
 
 ## Installation
 
@@ -111,9 +112,9 @@ Tests live in a separate `test/` directory (not included in this repo). See the 
 
 ## Roadmap
 
-- [x] **v0.2** (current): ChatGPT + Claude + Grok capture & relay, AI summary, i18n, side panel UI
-- [ ] **v0.3**: Gemini support, Chrome Web Store listing
-- [ ] **v0.4**: Auto-detect usage limits, one-click relay trigger
+- [x] **v0.2**: ChatGPT + Claude + Grok capture & relay, AI summary, i18n, side panel UI
+- [x] **v0.3** (current): Gemini support (Google BatchExecute RPC), recording infrastructure
+- [ ] **v0.4**: Chrome Web Store listing, auto-detect usage limits, one-click relay trigger
 - [ ] **v1.0**: Polish, landing page, more platforms
 
 ## Contributing

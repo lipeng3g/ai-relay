@@ -8,9 +8,8 @@
 <body>
   <header class="hdr">
     <div class="hdr-row">
-      <img src="../icons/icon48.png" class="logo-icon" alt="" />
-      <div class="logo">AI Relay</div>
-      <div class="version">v0.2</div>
+      <div class="sub" id="subtitle" data-i18n="loading"></div>
+      <div class="privacy-inline" data-i18n="privacy_inline"></div>
       <div class="capture-toggle" id="capture-toggle-wrap">
         <span class="capture-label" id="capture-label" data-i18n="capture_off"></span>
         <label class="toggle-sm">
@@ -19,8 +18,6 @@
         </label>
       </div>
     </div>
-    <div class="sub" id="subtitle" data-i18n="loading"></div>
-    <div class="privacy-inline" data-i18n="privacy_inline"></div>
   </header>
 
   <nav class="tabs">
@@ -36,13 +33,35 @@
       <div id="current-info" class="info">—</div>
       <div id="current-stats" class="stats-bar"></div>
 
-      <div class="compress-mode" id="compress-mode-hint">
-        <span class="mode-icon" id="mode-icon">📋</span>
-        <span id="mode-text"></span>
+      <div id="current-preview" class="current-preview" style="display:none;"></div>
+
+      <div class="action-group" id="action-group" style="display:none;">
+        <button id="btn-smart-copy" class="action-btn action-primary" disabled>
+          <span class="action-icon">⚡</span>
+          <span class="action-text">
+            <span class="action-title" data-i18n="btn_smart_copy"></span>
+            <span class="action-sub" data-i18n="mode_smart_desc"></span>
+          </span>
+        </button>
+        <button id="btn-full-copy" class="action-btn action-secondary" disabled>
+          <span class="action-icon">📋</span>
+          <span class="action-text">
+            <span class="action-title" data-i18n="btn_full_copy"></span>
+            <span class="action-sub" data-i18n="mode_full_desc"></span>
+          </span>
+        </button>
+        <div class="action-hint-text" data-i18n="action_hint"></div>
+        <div class="action-row">
+          <button id="btn-preview-current" class="small-link" disabled data-i18n="btn_preview"></button>
+          <span class="action-sep">·</span>
+          <span id="snapshot-size" class="snapshot-size-inline"></span>
+        </div>
       </div>
 
-      <button id="btn-relay" class="primary" disabled data-i18n="btn_relay"></button>
-      <div id="snapshot-size" class="snapshot-size"></div>
+      <div id="current-ignore-area" class="ignore-area" style="display:none;">
+        <button id="btn-ignore-conv" class="ignore-btn" data-i18n="btn_ignore_conv"></button>
+      </div>
+      <div id="ignored-hint" class="ignored-hint" style="display:none;" data-i18n="ignored_hint"></div>
       <div id="target-links" class="target-links" style="display:none;">
         <div class="target-title" data-i18n="target_title"></div>
         <div class="target-btns" id="target-btns"></div>
@@ -57,24 +76,6 @@
 
     <!-- Panel: Settings -->
     <section class="panel panel-settings">
-      <div class="setting-group">
-        <div class="setting-label" data-i18n="setting_llm_title"></div>
-        <div class="setting-desc" data-i18n="setting_llm_desc"></div>
-      </div>
-      <div class="setting-group setting-api">
-        <label class="setting-field-label" data-i18n="setting_api_url"></label>
-        <input type="text" id="api-endpoint" class="setting-input" placeholder="https://api.openai.com/v1" />
-        <label class="setting-field-label" data-i18n="setting_api_key"></label>
-        <input type="password" id="api-key" class="setting-input" placeholder="sk-..." />
-        <label class="setting-field-label" data-i18n="setting_model"></label>
-        <input type="text" id="api-model" class="setting-input" placeholder="gpt-4.1-mini" />
-        <div class="setting-api-hint" data-i18n="setting_api_hint"></div>
-        <div class="setting-api-actions">
-          <button id="btn-save-api" class="small-primary" data-i18n="btn_save"></button>
-          <button id="btn-test-api" class="small-secondary" data-i18n="btn_test"></button>
-          <span id="api-status" class="api-status"></span>
-        </div>
-      </div>
       <div class="setting-group">
         <div class="setting-label" data-i18n="setting_turns_title"></div>
         <div class="setting-desc" data-i18n="setting_turns_desc"></div>
@@ -128,12 +129,19 @@
   <div id="detail-overlay" class="overlay" style="display:none;">
     <div class="overlay-header">
       <span id="detail-title" data-i18n="detail_title"></span>
+      <a id="detail-source-link" class="detail-source-link" href="#" target="_blank" style="display:none;">↗</a>
+      <button id="btn-detail-delete" class="detail-del-btn" data-i18n-title="btn_delete_session">🗑</button>
       <button id="btn-close-detail" class="close-btn">&times;</button>
     </div>
     <div class="detail-body" id="detail-body"></div>
+    <div id="detail-load-more" class="detail-load-more" style="display:none;">
+      <button id="btn-load-more" class="small-link" data-i18n="btn_show_more"></button>
+      <span id="detail-paging" class="detail-paging"></span>
+    </div>
     <div class="overlay-footer detail-footer">
-      <button id="btn-detail-snapshot" class="primary" data-i18n="btn_detail_snapshot"></button>
-      <button id="btn-detail-preview" class="secondary" data-i18n="btn_detail_preview"></button>
+      <button id="btn-detail-smart" class="action-btn-sm action-primary-sm" data-i18n="btn_smart_copy"></button>
+      <button id="btn-detail-full" class="action-btn-sm action-secondary-sm" data-i18n="btn_full_copy"></button>
+      <button id="btn-detail-preview" class="action-btn-sm action-outline-sm" data-i18n="btn_preview"></button>
     </div>
   </div>
 

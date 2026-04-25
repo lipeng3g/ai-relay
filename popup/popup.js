@@ -4,34 +4,32 @@
   const t = window.AIRelayI18n.t;
   window.AIRelayI18n.applyI18nAttributes();
 
-  // Populate select options after i18n is ready
-  const turnsSelect = document.getElementById('select-recent-turns');
-  for (const opt of turnsSelect.options) {
-    opt.textContent = t('turns_option', { n: opt.value });
-  }
-
-  const SUPPORTED_PLATFORMS = { chatgpt: 'ChatGPT', claude: 'Claude', grok: 'Grok' };
+  const SUPPORTED_PLATFORMS = { chatgpt: 'ChatGPT', claude: 'Claude', grok: 'Grok', gemini: 'Gemini' };
   const PLATFORM_URLS = {
     chatgpt: 'https://chatgpt.com/',
     claude: 'https://claude.ai/new',
     grok: 'https://grok.com/',
+    gemini: 'https://gemini.google.com/',
   };
-  const PLATFORM_DOT_CLASS = {
-    chatgpt: 'dot-chatgpt',
-    claude: 'dot-claude',
-    grok: 'dot-grok',
-  };
+  const PLATFORM_DOT_CLASS = { chatgpt: 'dot-chatgpt', claude: 'dot-claude', grok: 'dot-grok', gemini: 'dot-gemini' };
   const SESSION_STORAGE_KEY = 'airelay.sessions.v1';
   const SETTINGS_KEY = 'airelay.settings';
+  const DETAIL_PAGE_SIZE = 20;
+  const COLLAPSE_THRESHOLD = 300;
 
+  // DOM refs
   const subtitleEl = document.getElementById('subtitle');
   const infoEl = document.getElementById('current-info');
   const statsEl = document.getElementById('current-stats');
-  const compressModeEl = document.getElementById('compress-mode-hint');
-  const modeIconEl = document.getElementById('mode-icon');
-  const modeTextEl = document.getElementById('mode-text');
-  const btnRelay = document.getElementById('btn-relay');
+  const currentPreview = document.getElementById('current-preview');
+  const actionGroup = document.getElementById('action-group');
+  const btnSmartCopy = document.getElementById('btn-smart-copy');
+  const btnFullCopy = document.getElementById('btn-full-copy');
+  const btnPreviewCurrent = document.getElementById('btn-preview-current');
   const snapshotSizeEl = document.getElementById('snapshot-size');
+  const currentIgnoreArea = document.getElementById('current-ignore-area');
+  const btnIgnoreConv = document.getElementById('btn-ignore-conv');
+  const ignoredHintEl = document.getElementById('ignored-hint');
   const targetLinksEl = document.getElementById('target-links');
   const targetBtnsEl = document.getElementById('target-btns');
   const mainHintEl = document.getElementById('main-hint');
@@ -47,43 +45,33 @@
   const detailOverlay = document.getElementById('detail-overlay');
   const detailTitle = document.getElementById('detail-title');
   const detailBody = document.getElementById('detail-body');
+  const detailSourceLink = document.getElementById('detail-source-link');
+  const detailLoadMore = document.getElementById('detail-load-more');
+  const btnLoadMore = document.getElementById('btn-load-more');
+  const detailPaging = document.getElementById('detail-paging');
   const btnCloseDetail = document.getElementById('btn-close-detail');
-  const btnDetailSnapshot = document.getElementById('btn-detail-snapshot');
+  const btnDetailDelete = document.getElementById('btn-detail-delete');
+  const btnDetailSmart = document.getElementById('btn-detail-smart');
+  const btnDetailFull = document.getElementById('btn-detail-full');
   const btnDetailPreview = document.getElementById('btn-detail-preview');
 
   const toggleCapture = document.getElementById('toggle-capture');
   const captureLabel = document.getElementById('capture-label');
   const toggleDebug = document.getElementById('toggle-debug');
   const btnClearAll = document.getElementById('btn-clear-all');
-
-  const apiEndpointEl = document.getElementById('api-endpoint');
-  const apiKeyEl = document.getElementById('api-key');
-  const apiModelEl = document.getElementById('api-model');
-  const btnSaveApi = document.getElementById('btn-save-api');
-  const btnTestApi = document.getElementById('btn-test-api');
-  const apiStatusEl = document.getElementById('api-status');
   const selectRecentTurns = document.getElementById('select-recent-turns');
+
+  for (const opt of selectRecentTurns.options) {
+    opt.textContent = t('turns_option', { n: opt.value });
+  }
 
   // --- Settings ---
   async function loadSettings() {
-    return new Promise((r) => {
-      chrome.storage.local.get([SETTINGS_KEY], (res) => r(res[SETTINGS_KEY] || {}));
-    });
+    return new Promise((r) => chrome.storage.local.get([SETTINGS_KEY], (res) => r(res[SETTINGS_KEY] || {})));
   }
   async function saveSettings(patch) {
     const current = await loadSettings();
-    const merged = { ...current, ...patch };
-    return new Promise((r) => {
-      chrome.storage.local.set({ [SETTINGS_KEY]: merged }, r);
-    });
-  }
-  function getApiConfig(s) {
-    if (!s.apiKey) return null;
-    return {
-      endpoint: s.apiEndpoint || 'https://api.openai.com/v1',
-      key: s.apiKey,
-      model: s.apiModel || 'gpt-4.1-mini',
-    };
+    return new Promise((r) => chrome.storage.local.set({ [SETTINGS_KEY]: { ...current, ...patch } }, r));
   }
 
   // --- Utils ---
@@ -94,6 +82,7 @@
     if (url.includes('chatgpt.com')) return 'chatgpt';
     if (url.includes('claude.ai')) return 'claude';
     if (url.includes('grok.com')) return 'grok';
+    if (url.includes('gemini.google.com')) return 'gemini';
     return null;
   }
 
@@ -120,20 +109,15 @@
     }
   }
 
-  function truncate(s, n) {
-    if (!s) return '';
-    s = s.trim();
-    return s.length <= n ? s : s.slice(0, n) + '…';
-  }
+  function truncate(s, n) { if (!s) return ''; s = s.trim(); return s.length <= n ? s : s.slice(0, n) + '…'; }
   function firstUserMessage(session) {
     if (!session?.messages) return '';
     const m = session.messages.find((m) => m.role === 'user');
     return m ? truncate(m.content, 80) : '';
   }
   function sessionTitle(session) {
-    if (session.title && !session.title.startsWith('http')) {
+    if (session.title && !session.title.startsWith('http'))
       return truncate(session.title.replace(/\s*[-|·].*$/, ''), 50);
-    }
     return firstUserMessage(session) || t('no_title');
   }
   function timeAgo(ts) {
@@ -151,32 +135,53 @@
   }
   function getSessionSourceUrl(session) {
     if (session.url) return session.url;
-    if (session.platform === 'chatgpt' && session.convId)
-      return `https://chatgpt.com/c/${session.convId}`;
-    if (session.platform === 'claude' && session.convId)
-      return `https://claude.ai/chat/${session.convId}`;
-    if (session.platform === 'grok' && session.convId)
-      return `https://grok.com/chat/${session.convId}`;
+    if (session.platform === 'chatgpt' && session.convId) return `https://chatgpt.com/c/${session.convId}`;
+    if (session.platform === 'claude' && session.convId) return `https://claude.ai/chat/${session.convId}`;
+    if (session.platform === 'grok' && session.convId) return `https://grok.com/chat/${session.convId}`;
+    if (session.platform === 'gemini' && session.convId) return `https://gemini.google.com/app/${session.convId}`;
     return null;
   }
-  function escHtml(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+  function escHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
   // --- State ---
   let settings = await loadSettings();
   let currentSession = null;
   let currentPlatform = null;
-
   const snapshotCache = new Map();
 
-  function makeCacheKey(session) {
+  function makeCacheKey(session, mode) {
     if (!session) return '';
-    const n = session.messages?.length || 0;
-    const ts = session.updatedAt || 0;
-    const api = settings.apiKey ? '1' : '0';
-    const turns = settings.recentTurns || 3;
-    return `${session.platform}::${session.convId}::${n}::${ts}::${api}::${turns}`;
+    return `${window.AIRelayCompress.sessionFingerprint(session)}::${mode}`;
+  }
+  function getCacheEntry(session, mode) { return snapshotCache.get(makeCacheKey(session, mode)) || null; }
+  function setCacheEntry(session, mode, snap) {
+    snapshotCache.set(makeCacheKey(session, mode), { snap, generatedAt: Date.now(), fingerprint: window.AIRelayCompress.sessionFingerprint(session) });
+  }
+  function isCacheValid(session, mode) {
+    const entry = getCacheEntry(session, mode);
+    return entry && entry.fingerprint === window.AIRelayCompress.sessionFingerprint(session);
+  }
+
+  // --- Ignore list ---
+  async function getIgnoredConvs() {
+    return new Promise((r) => chrome.storage.local.get(['airelay.ignoredConvs'], (res) => r(res['airelay.ignoredConvs'] || [])));
+  }
+  async function setIgnoredConvs(list) {
+    return new Promise((r) => chrome.storage.local.set({ 'airelay.ignoredConvs': list }, r));
+  }
+  async function isConvIgnored(convId) {
+    if (!convId) return false;
+    const list = await getIgnoredConvs();
+    return list.includes(convId);
+  }
+  async function ignoreConv(convId) {
+    const list = await getIgnoredConvs();
+    if (!list.includes(convId)) { list.push(convId); await setIgnoredConvs(list); }
+  }
+  async function unignoreConv(convId) {
+    let list = await getIgnoredConvs();
+    list = list.filter((c) => c !== convId);
+    await setIgnoredConvs(list);
   }
 
   // --- Capture toggle ---
@@ -196,43 +201,54 @@
     showToast(on ? t('toast_capture_on') : t('toast_capture_off'));
   };
 
-  // --- Compress mode hint ---
-  function updateModeHint() {
-    const hasApi = !!settings.apiKey;
-    const turns = settings.recentTurns || 3;
-    if (hasApi) {
-      modeIconEl.textContent = '🤖';
-      modeTextEl.textContent = t('mode_llm', { model: settings.apiModel || 'gpt-4.1-mini' });
-      compressModeEl.classList.add('llm-active');
-    } else {
-      modeIconEl.textContent = '📋';
-      modeTextEl.textContent = t('mode_raw', { n: turns });
-      compressModeEl.classList.remove('llm-active');
-    }
-  }
-
-  function updateSnapshotSize(session) {
-    if (!session?.messages?.length) { snapshotSizeEl.innerHTML = ''; return; }
+  // --- Snapshot generation (with cache) ---
+  function generateSnapshot(session, mode) {
+    if (isCacheValid(session, mode)) return getCacheEntry(session, mode).snap;
     const recentTurns = settings.recentTurns || 3;
-    const snap = window.AIRelayCompress.compress(session, { recentTurns });
-    const ss = window.AIRelayCompress.snapshotStats(snap);
-    const warn = ss.chars > 12000;
-    snapshotSizeEl.className = 'snapshot-size' + (warn ? ' warn' : '');
-    snapshotSizeEl.innerHTML = t('estimate_label', { chars: ss.chars.toLocaleString(), tokens: ss.approxTokens.toLocaleString() }) + (warn ? t('estimate_long') : '');
-  }
-
-  // --- Core: generate snapshot (with per-session cache) ---
-  async function generateSnapshot(session) {
-    const key = makeCacheKey(session);
-    if (snapshotCache.has(key)) return snapshotCache.get(key);
-    const recentTurns = settings.recentTurns || 3;
-    const apiConfig = getApiConfig(settings);
-    const snap = await window.AIRelayCompress.compressAsync(session, apiConfig, { recentTurns });
-    snapshotCache.set(key, snap);
+    const snap = window.AIRelayCompress.compress(session, mode, { recentTurns });
+    setCacheEntry(session, mode, snap);
     return snap;
   }
 
-  // --- Shared UI actions ---
+  // --- Shared UI: copy a snapshot for given session+mode, with button feedback ---
+  async function copyModeSnapshot(session, mode, btnEl) {
+    const snap = generateSnapshot(session, mode);
+    if (!snap) { showToast(t('toast_empty')); return false; }
+    const titleSpan = btnEl.querySelector('.action-title');
+    const label = titleSpan || btnEl;
+    const origText = label.textContent;
+    btnEl.disabled = true;
+    const ok = await copyToClipboard(snap);
+    if (ok) {
+      showToast(t('toast_copied'));
+      label.textContent = t('btn_copied_ok');
+      btnEl.classList.add('ok');
+      setTimeout(() => { label.textContent = origText; btnEl.classList.remove('ok'); btnEl.disabled = false; }, 2500);
+      return true;
+    }
+    showToast(t('toast_copy_fail'));
+    btnEl.disabled = false;
+    return false;
+  }
+
+  // --- Shared UI: show snapshot preview ---
+  function showPreview(session, mode) {
+    mode = mode || 'smart';
+    const snap = generateSnapshot(session, mode);
+    if (!snap) { showToast(t('toast_empty')); return; }
+    previewText.textContent = snap;
+    const ss = window.AIRelayCompress.snapshotStats(snap);
+    previewStats.textContent = `${ss.chars.toLocaleString()} ${t('stat_chars')} · ~${ss.approxTokens.toLocaleString()} tokens`;
+    previewOverlay.style.display = 'flex';
+  }
+  function hidePreview() { previewOverlay.style.display = 'none'; }
+  btnClosePreview.onclick = hidePreview;
+  btnCopyFromPreview.onclick = async () => {
+    const snap = previewText.textContent;
+    if (!snap) return;
+    const ok = await copyToClipboard(snap);
+    if (ok) { showToast(t('copied_text')); hidePreview(); }
+  };
 
   function showTargetLinks(platform) {
     targetBtnsEl.innerHTML = '';
@@ -249,54 +265,28 @@
     targetLinksEl.style.display = 'block';
   }
 
-  async function showPreview(session, triggerBtn) {
-    if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = t('btn_generating'); }
-    try {
-      const snap = await generateSnapshot(session);
-      if (!snap) { showToast(t('toast_empty')); return; }
-      previewText.textContent = snap;
-      const ss = window.AIRelayCompress.snapshotStats(snap);
-      previewStats.textContent = `${ss.chars.toLocaleString()} ${t('stat_chars')} · ~${ss.approxTokens.toLocaleString()} tokens`;
-      previewOverlay.style.display = 'flex';
-    } catch (err) {
-      showToast(t('toast_gen_fail', { err: err.message }));
-    } finally {
-      if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.textContent = t('btn_detail_preview'); }
-    }
+  function updateSnapshotSize(session) {
+    if (!session?.messages?.length || !snapshotSizeEl) { if (snapshotSizeEl) snapshotSizeEl.innerHTML = ''; return; }
+    const est = window.AIRelayCompress.estimateModeSize(session, 'smart');
+    snapshotSizeEl.innerHTML = t('estimate_label', { chars: est.chars.toLocaleString(), tokens: est.approxTokens.toLocaleString() });
   }
 
-  function hidePreview() { previewOverlay.style.display = 'none'; }
-
-  async function copySnapshot(session, btn, originalTextKey) {
-    btn.disabled = true;
-    btn.textContent = t('btn_generating');
-    try {
-      const snap = await generateSnapshot(session);
-      if (!snap) { showToast(t('toast_empty')); return; }
-      const ok = await copyToClipboard(snap);
-      if (ok) {
-        showToast(t('toast_copied'));
-        btn.textContent = t('btn_copied_ok');
-        btn.classList.add('ok');
-        setTimeout(() => { btn.textContent = t(originalTextKey); btn.classList.remove('ok'); btn.disabled = false; }, 2500);
-        return true;
-      }
-      showToast(t('toast_copy_fail'));
-    } catch (err) {
-      showToast(t('toast_gen_fail', { err: err.message }));
+  // --- Current tab: preview last 2 messages ---
+  function renderCurrentPreview(session) {
+    if (!session?.messages?.length) { currentPreview.style.display = 'none'; return; }
+    const msgs = session.messages;
+    const last = msgs.slice(-2);
+    let html = '';
+    for (const m of last) {
+      const cls = m.role === 'user' ? 'pm-user' : 'pm-asst';
+      const roleLabel = m.role === 'user' ? t('role_user') : t('role_assistant');
+      html += `<div class="preview-msg ${cls}"><div class="pm-role">${roleLabel}</div><div class="pm-text">${escHtml(truncate(m.content, 200))}</div></div>`;
     }
-    btn.textContent = t(originalTextKey);
-    btn.disabled = false;
-    return false;
+    html += `<div class="preview-footer">${t('current_view_detail')}</div>`;
+    currentPreview.innerHTML = html;
+    currentPreview.style.display = 'block';
+    currentPreview.onclick = () => showDetail(session);
   }
-
-  btnClosePreview.onclick = hidePreview;
-  btnCopyFromPreview.onclick = async () => {
-    const snap = previewText.textContent;
-    if (!snap) return;
-    const ok = await copyToClipboard(snap);
-    if (ok) { showToast(t('copied_text')); hidePreview(); }
-  };
 
   // --- Active tab ---
   async function getActiveTab() {
@@ -304,12 +294,13 @@
     return tabs?.[0] || null;
   }
   function findSessionForTab(allRecent, tab, platform) {
-    if (!platform || !tab) return null;
-    const match = allRecent.find(
-      (s) => s.platform === platform && tab.url &&
-        (tab.url.includes(s.convId || '___no_match___') || s.url === tab.url)
-    );
-    return match || allRecent.find((s) => s.platform === platform) || null;
+    if (!platform || !tab?.url) return null;
+    const byConvId = allRecent.find((s) => s.platform === platform && s.convId && tab.url.includes(s.convId));
+    if (byConvId) return byConvId;
+    const byUrl = allRecent.find((s) => s.platform === platform && s.url && s.url === tab.url);
+    if (byUrl) return byUrl;
+    const recent = allRecent.find((s) => s.platform === platform && s.updatedAt && (Date.now() - s.updatedAt < 60000));
+    return recent || null;
   }
 
   // --- Refresh current panel ---
@@ -321,8 +312,10 @@
       subtitleEl.textContent = t('not_supported');
       infoEl.innerHTML = t('use_platforms', { list: `<b>${supportedList}</b>` });
       statsEl.innerHTML = '';
-      snapshotSizeEl.innerHTML = '';
-      btnRelay.disabled = true;
+      currentPreview.style.display = 'none';
+      actionGroup.style.display = 'none';
+      currentIgnoreArea.style.display = 'none';
+      ignoredHintEl.style.display = 'none';
       mainHintEl.innerHTML = '';
       return;
     }
@@ -333,46 +326,119 @@
 
     if (!session || !session.messages?.length) {
       currentSession = null;
-      if (!settings.captureEnabled) {
-        infoEl.innerHTML = t('capture_disabled_hint');
-      } else {
-        infoEl.innerHTML = t('no_capture_hint');
-      }
+      infoEl.innerHTML = !settings.captureEnabled ? t('capture_disabled_hint') : t('no_capture_hint');
       mainHintEl.innerHTML = '';
       statsEl.innerHTML = '';
-      snapshotSizeEl.innerHTML = '';
-      btnRelay.disabled = true;
+      currentPreview.style.display = 'none';
+      actionGroup.style.display = 'none';
+      currentIgnoreArea.style.display = 'none';
+      ignoredHintEl.style.display = 'none';
       return;
     }
 
     currentSession = session;
     const userCount = session.messages.filter((m) => m.role === 'user').length;
     const asstCount = session.messages.filter((m) => m.role === 'assistant').length;
-    const hasApi = !!settings.apiKey;
-    const modeLabel = hasApi ? t('mode_label_llm') : t('mode_label_raw');
     infoEl.innerHTML = t('captured_info', { total: session.messages.length, user: userCount, asst: asstCount });
     statsEl.innerHTML = renderStats(session);
+    renderCurrentPreview(session);
     updateSnapshotSize(session);
-    mainHintEl.innerHTML = t('main_hint', { mode: modeLabel }) + (hasApi ? '' : t('main_hint_no_api'));
-    btnRelay.disabled = false;
-    btnRelay.onclick = async () => {
-      const ok = await copySnapshot(session, btnRelay, 'btn_relay');
+    mainHintEl.innerHTML = '';
+
+    actionGroup.style.display = 'flex';
+    btnSmartCopy.disabled = false;
+    btnFullCopy.disabled = false;
+    btnPreviewCurrent.disabled = false;
+
+    btnSmartCopy.onclick = async () => {
+      const ok = await copyModeSnapshot(session, 'smart', btnSmartCopy);
       if (ok) showTargetLinks(currentPlatform);
     };
+    btnFullCopy.onclick = async () => {
+      const ok = await copyModeSnapshot(session, 'full', btnFullCopy);
+      if (ok) showTargetLinks(currentPlatform);
+    };
+    btnPreviewCurrent.onclick = () => showPreview(session, 'smart');
+
+    const ignored = await isConvIgnored(session.convId);
+    if (ignored) {
+      ignoredHintEl.style.display = 'block';
+      btnIgnoreConv.textContent = t('btn_unignore_conv');
+      currentIgnoreArea.style.display = 'block';
+      btnIgnoreConv.onclick = async () => {
+        await unignoreConv(session.convId);
+        showToast(t('toast_unignored'));
+        refreshCurrentPanel();
+      };
+    } else {
+      ignoredHintEl.style.display = 'none';
+      btnIgnoreConv.textContent = t('btn_ignore_conv');
+      currentIgnoreArea.style.display = session.convId ? 'block' : 'none';
+      btnIgnoreConv.onclick = async () => {
+        await ignoreConv(session.convId);
+        showToast(t('toast_ignored'));
+        refreshCurrentPanel();
+      };
+    }
   }
 
-  // --- Detail overlay ---
+  // --- Detail overlay with paging ---
   let detailSession = null;
+  let detailRenderedCount = 0;
+
+  function renderDetailMessages(container, messages, startIdx, count) {
+    const end = Math.min(startIdx + count, messages.length);
+    for (let i = startIdx; i < end; i++) {
+      const m = messages[i];
+      const roleLabel = m.role === 'user' ? t('role_user') : t('role_assistant');
+      const roleClass = m.role === 'user' ? 'msg-user' : 'msg-asst';
+      const needCollapse = m.content && m.content.length > COLLAPSE_THRESHOLD;
+
+      const div = document.createElement('div');
+      div.className = `detail-msg ${roleClass}`;
+
+      let contentHtml = `<div class="msg-role">${roleLabel}</div>`;
+      contentHtml += `<div class="msg-content${needCollapse ? ' collapsed' : ''}">${escHtml(m.content || '')}</div>`;
+      if (needCollapse) {
+        contentHtml += `<span class="msg-toggle" data-expanded="false">${t('btn_expand')}</span>`;
+      }
+      div.innerHTML = contentHtml;
+
+      if (needCollapse) {
+        const toggle = div.querySelector('.msg-toggle');
+        toggle.onclick = () => {
+          const content = div.querySelector('.msg-content');
+          const expanded = toggle.getAttribute('data-expanded') === 'true';
+          content.classList.toggle('collapsed', expanded);
+          toggle.setAttribute('data-expanded', String(!expanded));
+          toggle.textContent = expanded ? t('btn_expand') : t('btn_collapse');
+        };
+      }
+
+      container.appendChild(div);
+    }
+    return end;
+  }
 
   function showDetail(session) {
     detailSession = session;
     const platform = session.platform || 'chatgpt';
     const label = SUPPORTED_PLATFORMS[platform] || platform;
     detailTitle.textContent = sessionTitle(session) || label;
+
     const sourceUrl = getSessionSourceUrl(session);
+    if (sourceUrl) {
+      detailSourceLink.href = sourceUrl;
+      detailSourceLink.style.display = 'inline';
+      detailSourceLink.title = t('btn_open_original');
+    } else {
+      detailSourceLink.style.display = 'none';
+    }
+
     const userCount = session.messages.filter((m) => m.role === 'user').length;
     const asstCount = session.messages.filter((m) => m.role === 'assistant').length;
     const stats = window.AIRelayCompress.estimateStats(session);
+    const totalMsgs = session.messages.length;
 
     let html = `<div class="detail-meta">`;
     html += `<div class="detail-platform">${label} · ${t('detail_messages', { n: userCount + asstCount, turns: stats.turns })}</div>`;
@@ -380,42 +446,72 @@
       html += `<a class="detail-url" href="${escHtml(sourceUrl)}" target="_blank">${escHtml(truncate(sourceUrl.replace(/^https?:\/\//, ''), 70))}</a>`;
     }
     html += `<div class="detail-time">${timeAgo(session.updatedAt)}</div>`;
-    html += `</div><div class="detail-messages">`;
-    for (const m of session.messages) {
-      const roleLabel = m.role === 'user' ? t('role_user') : t('role_assistant');
-      const roleClass = m.role === 'user' ? 'msg-user' : 'msg-asst';
-      html += `<div class="detail-msg ${roleClass}"><div class="msg-role">${roleLabel}</div><div class="msg-content">${escHtml(truncate(m.content, 500))}</div></div>`;
-    }
-    html += `</div>`;
+    html += `</div><div class="detail-messages" id="detail-msg-container"></div>`;
     detailBody.innerHTML = html;
 
-    btnDetailSnapshot.disabled = false;
-    btnDetailSnapshot.textContent = t('btn_detail_snapshot');
-    btnDetailPreview.disabled = false;
-    btnDetailPreview.textContent = t('btn_detail_preview');
+    const container = document.getElementById('detail-msg-container');
+    detailRenderedCount = 0;
+    const rendered = renderDetailMessages(container, session.messages, 0, DETAIL_PAGE_SIZE);
+    detailRenderedCount = rendered;
 
+    if (rendered < totalMsgs) {
+      detailLoadMore.style.display = 'block';
+      detailPaging.textContent = t('detail_showing', { n: rendered, total: totalMsgs });
+    } else {
+      detailLoadMore.style.display = 'none';
+    }
+
+    btnDetailSmart.disabled = false;
+    btnDetailFull.disabled = false;
+    btnDetailPreview.disabled = false;
     detailOverlay.style.display = 'flex';
   }
+
+  btnLoadMore.onclick = () => {
+    if (!detailSession) return;
+    const container = document.getElementById('detail-msg-container');
+    if (!container) return;
+    const rendered = renderDetailMessages(container, detailSession.messages, detailRenderedCount, DETAIL_PAGE_SIZE);
+    detailRenderedCount = rendered;
+    if (rendered >= detailSession.messages.length) {
+      detailLoadMore.style.display = 'none';
+    } else {
+      detailPaging.textContent = t('detail_showing', { n: rendered, total: detailSession.messages.length });
+    }
+  };
 
   function hideDetail() { detailOverlay.style.display = 'none'; detailSession = null; }
   btnCloseDetail.onclick = hideDetail;
 
-  btnDetailSnapshot.onclick = async () => {
+  btnDetailDelete.onclick = async () => {
     if (!detailSession) return;
-    await copySnapshot(detailSession, btnDetailSnapshot, 'btn_detail_snapshot');
+    if (!confirm(t('confirm_delete_session'))) return;
+    const key = window.AIRelayStorage.sessionKey(detailSession.platform, detailSession.convId);
+    await window.AIRelayStorage.deleteSessionByKey(key);
+    showToast(t('toast_deleted'));
+    hideDetail();
+    renderRecent();
+    refreshCurrentPanel();
   };
 
-  btnDetailPreview.onclick = async () => {
+  btnDetailSmart.onclick = async () => {
     if (!detailSession) return;
-    await showPreview(detailSession, btnDetailPreview);
+    await copyModeSnapshot(detailSession, 'smart', btnDetailSmart);
+  };
+  btnDetailFull.onclick = async () => {
+    if (!detailSession) return;
+    await copyModeSnapshot(detailSession, 'full', btnDetailFull);
+  };
+  btnDetailPreview.onclick = () => {
+    if (!detailSession) return;
+    showPreview(detailSession, 'smart');
   };
 
   // --- Recent panel ---
   async function renderRecent() {
     const recent = await window.AIRelayStorage.listRecent(10);
     if (!recent.length) {
-      recentEl.innerHTML =
-        `<div class="recent-empty">${t('recent_empty', { list: supportedList })}</div>`;
+      recentEl.innerHTML = `<div class="recent-empty">${t('recent_empty', { list: supportedList })}</div>`;
       return;
     }
     recentEl.innerHTML = '';
@@ -423,8 +519,14 @@
       const item = document.createElement('div');
       item.className = 'recent-item';
       const platform = s.platform || 'chatgpt';
-      const badgeClass = platform === 'claude' ? 'badge-claude' : platform === 'grok' ? 'badge-grok' : 'badge-chatgpt';
-      const badgeText = platform === 'claude' ? 'C' : platform === 'grok' ? 'X' : 'G';
+      const badgeClass = platform === 'claude' ? 'badge-claude'
+        : platform === 'grok' ? 'badge-grok'
+        : platform === 'gemini' ? 'badge-gemini'
+        : 'badge-chatgpt';
+      const badgeText = platform === 'claude' ? 'C'
+        : platform === 'grok' ? 'X'
+        : platform === 'gemini' ? 'Gm'
+        : 'G';
       const title = sessionTitle(s);
       const userCount = s.messages.filter((m) => m.role === 'user').length;
       const asstCount = s.messages.filter((m) => m.role === 'assistant').length;
@@ -458,16 +560,12 @@
   }
 
   // --- Init ---
-  updateModeHint();
   await refreshCurrentPanel();
   await renderRecent();
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes[SESSION_STORAGE_KEY]) {
-      refreshCurrentPanel();
-      renderRecent();
-    }
+    if (changes[SESSION_STORAGE_KEY]) { refreshCurrentPanel(); renderRecent(); }
   });
   chrome.tabs.onActivated.addListener(() => { refreshCurrentPanel(); });
   chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => {
@@ -475,68 +573,11 @@
   });
 
   // --- Settings panel ---
-  apiEndpointEl.value = settings.apiEndpoint || '';
-  apiKeyEl.value = settings.apiKey || '';
-  apiModelEl.value = settings.apiModel || '';
   selectRecentTurns.value = String(settings.recentTurns || 3);
-
-  btnSaveApi.onclick = async () => {
-    settings = {
-      ...settings,
-      apiEndpoint: apiEndpointEl.value.trim(),
-      apiKey: apiKeyEl.value.trim(),
-      apiModel: apiModelEl.value.trim(),
-    };
-    await saveSettings(settings);
-    snapshotCache.clear();
-    updateModeHint();
-    if (currentSession) updateSnapshotSize(currentSession);
-    showToast(t('toast_saved'));
-    apiStatusEl.textContent = '';
-  };
-
-  btnTestApi.onclick = async () => {
-    const cfg = {
-      endpoint: (apiEndpointEl.value.trim() || 'https://api.openai.com/v1').replace(/\/+$/, ''),
-      key: apiKeyEl.value.trim(),
-      model: apiModelEl.value.trim() || 'gpt-4.1-mini',
-    };
-    if (!cfg.key) {
-      apiStatusEl.textContent = t('fill_api_key');
-      apiStatusEl.className = 'api-status err';
-      return;
-    }
-    apiStatusEl.textContent = t('btn_testing');
-    apiStatusEl.className = 'api-status';
-    btnTestApi.disabled = true;
-    try {
-      const resp = await fetch(`${cfg.endpoint}/chat/completions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.key}` },
-        body: JSON.stringify({ model: cfg.model, messages: [{ role: 'user', content: 'Hi, reply OK.' }], max_tokens: 10 }),
-      });
-      if (resp.ok) {
-        await resp.json();
-        apiStatusEl.textContent = t('test_ok', { model: cfg.model });
-        apiStatusEl.className = 'api-status ok';
-      } else {
-        const errText = await resp.text().catch(() => '');
-        apiStatusEl.textContent = t('test_fail', { msg: `${resp.status}: ${errText.slice(0, 80)}` });
-        apiStatusEl.className = 'api-status err';
-      }
-    } catch (err) {
-      apiStatusEl.textContent = t('test_fail', { msg: err.message });
-      apiStatusEl.className = 'api-status err';
-    }
-    btnTestApi.disabled = false;
-  };
-
   selectRecentTurns.onchange = async () => {
     settings.recentTurns = parseInt(selectRecentTurns.value, 10);
     await saveSettings({ recentTurns: settings.recentTurns });
     snapshotCache.clear();
-    updateModeHint();
-    if (currentSession) updateSnapshotSize(currentSession);
   };
 
   const debugPref = await new Promise((r) =>

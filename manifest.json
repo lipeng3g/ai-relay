@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "permissions": ["storage", "clipboardWrite", "activeTab", "sidePanel", "tabs"],
   "host_permissions": [
     "https://chatgpt.com/*",
     "https://claude.ai/*",
+    "https://grok.com/*",
+    "https://gemini.google.com/*",
     "https://*/*"
   ],
   "background": {
@@ -18,7 +20,8 @@
       "matches": [
         "https://chatgpt.com/*",
         "https://claude.ai/*",
-        "https://grok.com/*"
+        "https://grok.com/*",
+        "https://gemini.google.com/*"
       ],
       "js": ["content/content.js"],
       "run_at": "document_start"
@@ -46,7 +49,8 @@
       "matches": [
         "https://chatgpt.com/*",
         "https://claude.ai/*",
-        "https://grok.com/*"
+        "https://grok.com/*",
+        "https://gemini.google.com/*"
       ]
     }
   ]

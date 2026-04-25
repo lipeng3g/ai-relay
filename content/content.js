@@ -97,7 +97,15 @@
       if (last && last.role === role && last.content === content && !last.messageId) return map;
     }
 
-    sess.messages.push({ role, content, messageId: messageId || null, ts: Date.now() });
+    // Retry handling: if the last message is the same role (e.g. assistant after
+    // assistant with no new user message in between), replace it instead of appending.
+    // This prevents duplicate responses from retry/regenerate.
+    const last = sess.messages[sess.messages.length - 1];
+    if (last && last.role === role && role === 'assistant') {
+      sess.messages[sess.messages.length - 1] = { role, content, messageId: messageId || null, ts: Date.now() };
+    } else {
+      sess.messages.push({ role, content, messageId: messageId || null, ts: Date.now() });
+    }
     sess.updatedAt = Date.now();
     if (meta?.url) sess.url = meta.url;
     if (meta?.title) sess.title = meta.title;
@@ -159,7 +167,17 @@
 
   // --- Async wrappers that read/write chrome.storage ---
 
+  function isConvIgnored(convId) {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(['airelay.ignoredConvs'], (res) => {
+        const list = res['airelay.ignoredConvs'] || [];
+        resolve(convId && list.includes(convId));
+      });
+    });
+  }
+
   async function handleCapture(detail) {
+    if (await isConvIgnored(detail?.convId)) return;
     const map = await readAll();
     const meta = { url: location.href, title: document.title };
     const updated = applyCapture(map, detail, meta);
@@ -167,6 +185,7 @@
   }
 
   async function handleHistory(detail) {
+    if (await isConvIgnored(detail?.convId)) return;
     const map = await readAll();
     const meta = { url: location.href, title: document.title };
     const updated = applyHistory(map, detail, meta);
