@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "permissions": ["storage", "clipboardWrite", "activeTab", "sidePanel", "tabs"],
@@ -9,8 +9,7 @@
     "https://chatgpt.com/*",
     "https://claude.ai/*",
     "https://grok.com/*",
-    "https://gemini.google.com/*",
-    "https://*/*"
+    "https://gemini.google.com/*"
   ],
   "background": {
     "service_worker": "background.js"
