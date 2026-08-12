@@ -63,8 +63,8 @@ If a future version introduces an optional account, license, or billing service,
 
 ### Contact and source code
 
-Source code: <https://github.com/lipeng3g/aicarry>
-Questions or privacy requests: <https://github.com/lipeng3g/aicarry/issues>
+Source code: <https://github.com/lipeng3g/ai-relay>
+Questions or privacy requests: <https://github.com/lipeng3g/ai-relay/issues>
 
 ## 中文
 
@@ -126,5 +126,5 @@ AICarry 会观察四个受支持 AI 网站发起的部分网络响应，但不�
 
 ### 联系方式与源代码
 
-源代码：<https://github.com/lipeng3g/aicarry>
-问题或隐私请求：<https://github.com/lipeng3g/aicarry/issues>
+源代码：<https://github.com/lipeng3g/ai-relay>
+问题或隐私请求：<https://github.com/lipeng3g/ai-relay/issues>

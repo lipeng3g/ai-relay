@@ -67,7 +67,7 @@ Chrome Web Store 商品正在准备中。商品上线后，建议从商店安装
 
 ## 获取帮助
 
-遇到问题时，请在 [GitHub Issues](https://github.com/lipeng3g/aicarry/issues) 描述：
+遇到问题时，请在 [GitHub Issues](https://github.com/lipeng3g/ai-relay/issues) 描述：
 
 - 使用的平台和页面；
 - AICarry 侧边栏显示的状态；
