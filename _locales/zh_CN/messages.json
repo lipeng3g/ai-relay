@@ -1,8 +1,8 @@
 {
   "extName": {
-    "message": "AI Relay"
+    "message": "AICarry"
   },
   "extDescription": {
-    "message": "AI 额度用完了？一键接力到另一个 AI 继续对话。"
+    "message": "在 ChatGPT、Claude、Gemini 和 Grok 之间继续对话，本地处理，复制前可预览。"
   }
 }

@@ -1,4 +1,4 @@
-// AI Relay · page-inject.js
+// AICarry · page-inject.js
 // Runs in PAGE context. Patches fetch to capture AI conversations.
 // All protocol parsing lives in lib/parsers.js (window.AIRelayParsers),
 // injected before this script — this file only handles URL routing,
@@ -12,17 +12,17 @@
   const P = window.AIRelayParsers;
   if (!P) {
     document.documentElement?.setAttribute('data-airelay-page', 'parser-missing');
-    console.error('[AI Relay] interceptor failed: AIRelayParsers is unavailable');
+    console.error('[AICarry] interceptor failed: AIRelayParsers is unavailable');
     return;
   }
 
   document.documentElement?.setAttribute('data-airelay-page', 'active');
-  console.info('[AI Relay] page interceptor active');
+  console.info('[AICarry] page interceptor active');
 
   let CAPTURE_ENABLED = document.documentElement?.dataset?.airelayCapture === 'on';
   let DEBUG = document.documentElement?.dataset?.airelayDebug === 'on';
   function dbg(...args) {
-    if (DEBUG) try { console.log('[AI Relay]', ...args); } catch {}
+    if (DEBUG) try { console.log('[AICarry]', ...args); } catch {}
   }
 
   window.addEventListener('airelay:config', (event) => {
@@ -446,7 +446,7 @@
       return origSend.apply(this, arguments);
     };
 
-    console.info(`[AI Relay] ${PLATFORM} XHR observer active`);
+    console.info(`[AICarry] ${PLATFORM} XHR observer active`);
   }
 
   // ---- WebSocket observer (Grok capture) ----
@@ -532,6 +532,6 @@
     }
 
     window.WebSocket = AIRelayWebSocket;
-    console.info('[AI Relay] Grok WebSocket observer active');
+    console.info('[AICarry] Grok WebSocket observer active');
   }
 })();

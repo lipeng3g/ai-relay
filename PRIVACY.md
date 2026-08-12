@@ -1,19 +1,19 @@
-# Privacy Policy · AI Relay
+# Privacy Policy · AICarry
 
-Last updated: July 26, 2026  
-Applies to: AI Relay v0.3.2
+Last updated: August 12, 2026
+Applies to: AICarry v0.3.3
 
 ## English
 
 ### Summary
 
-AI Relay processes supported AI-chat conversations locally in your browser. Conversation content is not sent to AI Relay, its developer, analytics providers, advertising providers, or any developer-operated server.
+AICarry processes supported AI-chat conversations locally in your browser. Conversation content is not sent to AICarry, its developer, analytics providers, advertising providers, or any developer-operated server.
 
-AI Relay v0.3.2 has no account system, billing backend, analytics, telemetry, advertising, or remote error-reporting service.
+AICarry v0.3.3 has no account system, billing backend, analytics, telemetry, advertising, or remote error-reporting service.
 
 ### What the extension processes
 
-AI Relay runs only on these supported websites:
+AICarry runs only on these supported websites:
 
 - `chatgpt.com`
 - `claude.ai`
@@ -29,15 +29,15 @@ When capture is enabled, the extension observes conversation responses on those 
 
 ### Storage and sharing
 
-Captured conversations and settings are stored in `chrome.storage.local` inside the user's Chrome profile. They are not synced to or stored on any AI Relay server.
+Captured conversations and settings are stored in `chrome.storage.local` inside the user's Chrome profile. They are not synced to or stored on any AICarry server.
 
 Relay text is written to the system clipboard only after the user chooses a relay mode and clicks a copy action. Clipboard contents are then visible to the user and to any application into which the user pastes them.
 
-AI Relay does not sell, rent, license, share, or use conversation content for advertising, profiling, credit decisions, or model training.
+AICarry does not sell, rent, license, share, or use conversation content for advertising, profiling, credit decisions, or model training.
 
 ### Network behavior
 
-AI Relay observes selected network responses made by the four supported AI websites. It does not initiate requests containing conversation content to the developer or to unrelated third parties.
+AICarry observes selected network responses made by the four supported AI websites. It does not initiate requests containing conversation content to the developer or to unrelated third parties.
 
 Opening a destination platform happens only after the user clicks that platform. The destination website then operates under its own privacy policy.
 
@@ -47,7 +47,7 @@ Conversation capture is off by default. The user can turn it on or off from the 
 
 The **Settings → Clear All Data** action deletes locally stored conversation records. Settings may remain so the extension can preserve the user's preferences. Visiting a supported conversation again while capture is enabled may capture that conversation again.
 
-Uninstalling AI Relay removes the extension's local storage through Chrome.
+Uninstalling AICarry removes the extension's local storage through Chrome.
 
 ### Permissions
 
@@ -63,20 +63,20 @@ If a future version introduces an optional account, license, or billing service,
 
 ### Contact and source code
 
-Source code: <https://github.com/lipeng3g/ai-relay>  
-Questions or privacy requests: <https://github.com/lipeng3g/ai-relay/issues>
+Source code: <https://github.com/lipeng3g/aicarry>
+Questions or privacy requests: <https://github.com/lipeng3g/aicarry/issues>
 
 ## 中文
 
 ### 摘要
 
-AI Relay 只在用户浏览器本地处理受支持 AI 网站中的对话。对话内容不会发送给 AI Relay、开发者、统计服务、广告服务或任何由开发者运营的服务器。
+AICarry 只在用户浏览器本地处理受支持 AI 网站中的对话。对话内容不会发送给 AICarry、开发者、统计服务、广告服务或任何由开发者运营的服务器。
 
-AI Relay v0.3.2 不包含账号系统、计费后台、统计、遥测、广告或远程错误上报服务。
+AICarry v0.3.3 不包含账号系统、计费后台、统计、遥测、广告或远程错误上报服务。
 
 ### 扩展处理哪些数据
 
-AI Relay 只在以下网站运行：
+AICarry 只在以下网站运行：
 
 - `chatgpt.com`
 - `claude.ai`
@@ -92,15 +92,15 @@ AI Relay 只在以下网站运行：
 
 ### 存储与共享
 
-抓取的对话和设置存储在用户 Chrome 配置目录中的 `chrome.storage.local`，不会同步或保存到 AI Relay 服务器。
+抓取的对话和设置存储在用户 Chrome 配置目录中的 `chrome.storage.local`，不会同步或保存到 AICarry 服务器。
 
 只有当用户选择接力模式并点击复制操作后，接力文本才会写入系统剪贴板。此后，剪贴板内容可由用户以及用户主动粘贴到的应用读取。
 
-AI Relay 不会出售、出租、授权、共享对话内容，也不会把它用于广告、画像、信贷决策或模型训练。
+AICarry 不会出售、出租、授权、共享对话内容，也不会把它用于广告、画像、信贷决策或模型训练。
 
 ### 网络行为
 
-AI Relay 会观察四个受支持 AI 网站发起的部分网络响应，但不会把对话内容发送给开发者或无关第三方。
+AICarry 会观察四个受支持 AI 网站发起的部分网络响应，但不会把对话内容发送给开发者或无关第三方。
 
 只有用户点击目标平台后，扩展才会打开该网站；目标网站后续的数据处理受其自身隐私政策约束。
 
@@ -110,7 +110,7 @@ AI Relay 会观察四个受支持 AI 网站发起的部分网络响应，但不�
 
 **设置 → 清除所有记录** 会删除本地保存的会话记录。为保留用户偏好，部分设置可能继续保留。开启抓取后重新访问受支持的对话页面，相关会话可能再次被抓取。
 
-卸载 AI Relay 后，Chrome 会删除该扩展的本地存储。
+卸载 AICarry 后，Chrome 会删除该扩展的本地存储。
 
 ### 权限说明
 
@@ -126,5 +126,5 @@ AI Relay 会观察四个受支持 AI 网站发起的部分网络响应，但不�
 
 ### 联系方式与源代码
 
-源代码：<https://github.com/lipeng3g/ai-relay>  
-问题或隐私请求：<https://github.com/lipeng3g/ai-relay/issues>
+源代码：<https://github.com/lipeng3g/aicarry>
+问题或隐私请求：<https://github.com/lipeng3g/aicarry/issues>

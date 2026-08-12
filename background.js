@@ -1,4 +1,4 @@
-// AI Relay · background service worker
+// AICarry · background service worker
 
 importScripts('lib/session-store.js');
 

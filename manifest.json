@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "permissions": ["storage", "clipboardWrite", "activeTab", "sidePanel", "tabs"],
@@ -46,7 +46,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "AI Relay",
+    "default_title": "AICarry",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

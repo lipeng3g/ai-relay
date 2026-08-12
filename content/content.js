@@ -1,4 +1,4 @@
-// AI Relay · content script (isolated world)
+// AICarry · content script (isolated world)
 // Responsibilities:
 //   1. Publish capture/debug settings to the MAIN-world interceptor.
 //   2. Listen for 'airelay:capture' / 'airelay:history' CustomEvents from the page.
@@ -56,7 +56,7 @@
     debugEnabled = !!res['airelay.debugPref'];
     setDiagnosticStatus(captureEnabled ? 'active' : 'capture-off');
     publishConfig();
-    console.info('[AI Relay] content bridge active');
+    console.info('[AICarry] content bridge active');
   });
 
   // React to the side-panel toggle without requiring a page refresh.

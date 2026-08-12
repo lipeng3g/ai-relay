@@ -1,4 +1,4 @@
-// AI Relay · popup.js (SidePanel)
+// AICarry · popup.js (SidePanel)
 
 (async function () {
   const t = window.AIRelayI18n.t;
