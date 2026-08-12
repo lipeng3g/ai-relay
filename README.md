@@ -1,126 +1,81 @@
 # AI Relay
 
-<p align="center">
-  <img src="icons/icon128.png" width="80" alt="AI Relay" />
-</p>
+把正在进行的 AI 对话带到另一个 AI，继续聊，不用重新解释背景。
 
-**AI Relay** is a Chrome extension that lets you seamlessly continue a conversation across different AI platforms. When you hit the free usage limit on ChatGPT, switch to Claude or Grok with one click — your full context comes along.
+AI Relay 是一个 Chrome 扩展，帮助你在 ChatGPT、Claude、Gemini 和 Grok 之间接力对话。它适合写作、学习、研究、编程和日常问答：当你想换一个 AI 时，先查看接力内容，再复制到新的对话里即可。
 
-**AI Relay** 是一个 Chrome 扩展，让你在不同 AI 平台之间无缝接力对话。当 ChatGPT 免费额度用完，一键切换到 Claude 或 Grok — 完整上下文自动带过去。
+> 简单、可控、以隐私为先：抓取默认关闭，对话内容只在你的 Chrome 浏览器本地处理。
 
-> All data stays in your browser. Nothing is uploaded. | 所有数据仅存储在本地，不上传任何内容。
+## 你可以用它做什么？
 
-## The Problem
+- 在不同 AI 平台之间继续同一个任务；
+- 保留问题、回答、代码和最近的上下文；
+- 长对话使用“精简接力”，短对话使用“完整接力”；
+- 先预览 AI Relay 要复制的内容，再决定是否使用；
+- 在侧边栏查看和管理本地会话历史；
+- 使用中文或英文界面。
 
-Free-tier users constantly rotate between ChatGPT, Claude, and Grok to dodge usage limits. Each time you switch, you lose all conversation context and have to re-explain everything. That's tedious, especially for multi-turn coding or research sessions.
+## 使用方法
 
-## How It Works
+1. 打开 ChatGPT、Claude、Gemini 或 Grok；
+2. 打开 AI Relay 侧边栏，并在需要时打开“抓取”开关；
+3. 正常完成你的对话；
+4. 选择“精简接力”或“完整接力”；
+5. 预览内容，确认无误后点击复制；
+6. 打开另一个 AI 平台，把内容粘贴到新对话中。
 
-1. **Capture** — The extension silently captures your conversation via network interception (all processing happens locally)
-2. **Snapshot** — One click generates a structured Markdown "relay snapshot" with your conversation context
-3. **Continue** — Paste the snapshot into a new AI's chat, and it picks up exactly where the last one left off
+AI Relay 不会替你自动发送消息。你始终可以在复制和粘贴之前检查内容。
 
-## Supported Platforms
+## 支持的平台
 
-| Platform | Capture | Relay To |
-|----------|---------|----------|
-| ChatGPT (chatgpt.com) | ✅ | ✅ |
-| Claude (claude.ai) | ✅ | ✅ |
-| Grok (grok.com) | ✅ | ✅ |
-| Gemini (gemini.google.com) | ✅ | ✅ |
+| 平台 | 抓取对话 | 生成接力文本 |
+| --- | --- | --- |
+| ChatGPT (`chatgpt.com`) | 支持 | 支持 |
+| Claude (`claude.ai`) | 支持 | 支持 |
+| Gemini (`gemini.google.com`) | 支持 | 支持 |
+| Grok (`grok.com`) | 支持 | 支持 |
 
-## Installation
+平台网站的登录、账号限制和内容政策仍由各平台负责。AI Relay 只提供本地的整理和复制工具。
 
-Since this extension is not yet on the Chrome Web Store, install it manually:
+## 隐私，用普通话说明
 
-1. Clone or download this repository
-2. Open `chrome://extensions` in Chrome
-3. Enable **Developer mode** (top-right toggle)
-4. Click **Load unpacked** and select this directory
-5. Pin the AI Relay icon to your toolbar
+- **抓取默认关闭。** 只有你主动打开开关后，扩展才会在四个支持的平台页面观察对话响应。
+- **对话在浏览器本地处理。** AI Relay v0.3.2 没有账号系统、计费后台、分析统计、广告、遥测或开发者运营的对话服务器。
+- **数据保存在你的 Chrome 配置中。** 会话和设置使用 `chrome.storage.local` 保存，不会同步到 AI Relay 服务器。
+- **复制由你决定。** 只有你点击复制后，接力文本才会写入系统剪贴板；之后由你决定粘贴到哪个应用。
+- **权限范围有限。** 扩展只请求四个支持的 AI 域名，不在其他网站运行抓取桥接代码。
 
-## Usage
+请注意：Chrome 本地存储和系统剪贴板不是加密保险箱。不要在不信任的设备上保留敏感对话，也不要把不该分享的内容粘贴到目标 AI。
 
-1. Enable the **Capture toggle** in the extension's side panel (off by default)
-2. Chat on any supported AI platform — the extension captures in the background
-3. When you need to switch platforms, click **"Generate Snapshot & Copy"**
-4. Click a target platform link to open it
-5. Paste (`Cmd/Ctrl+V`) in the new AI's chat and send
-6. The new AI confirms it understands the context and answers your latest question
+完整说明请阅读 [隐私政策](PRIVACY.md)。
 
-## Features
+## 安装
 
-- **Automatic capture**: Intercepts AI conversations via fetch proxy — no manual copying
-- **i18n**: Auto-detects browser language, supports English and Chinese
-- **Two compression modes**:
-  - **Verbatim**: Keeps recent N turns in full (default, no API needed)
-  - **AI Summary**: Uses a cheap LLM (e.g. GPT-4.1-mini) to intelligently compress long conversations while preserving code and key context
-- **Session history**: Browse, preview, and manage past conversations
-- **Capture toggle**: Disabled by default — you control when capturing is active
-- **Side panel UI**: Persistent sidebar that doesn't interrupt your workflow
-- **Privacy-first**: All data stored in local browser storage only
+Chrome Web Store 商品正在准备中。商品上线后，建议从商店安装；在商店版本可用前，可以按下面的方法手动安装：
 
-## AI Summary Mode (Optional)
+1. 下载本仓库，解压到本地；
+2. 在 Chrome 地址栏打开 `chrome://extensions`；
+3. 打开右上角的“开发者模式”；
+4. 点击“加载已解压的扩展程序”，选择本仓库中的 `extension/` 目录（如果你下载的是商店 ZIP，则选择解压后的根目录）；
+5. 将 AI Relay 固定到工具栏。
 
-For long conversations, you can configure an OpenAI-compatible API to enable intelligent compression:
+## 当前版本
 
-1. Go to the **Settings** tab
-2. Enter your API endpoint, key, and model (supports any OpenAI-compatible API: DeepSeek, OpenRouter, etc.)
-3. Click **Save** and **Test Connection**
+当前版本：**v0.3.2**
 
-The AI will summarize older parts of the conversation while keeping recent messages and all code blocks intact.
+这是一个免费、本地优先的首发版本。未来版本可能采用不同的分发或商业模式；如果发生变化，我们会在新版本的商店页面、发行说明和隐私政策中明确说明。已经发布的 v0.3.2 代码仍按仓库中附带的 MIT License 适用。
 
-## Privacy
+## 获取帮助
 
-- **No data leaves your browser** unless you explicitly configure an AI summary API
-- **No analytics, no tracking, no external servers**
-- All conversation data is stored in `chrome.storage.local` (your browser profile)
-- The capture toggle is **off by default** — nothing is captured until you enable it
-- Full source code is open for audit
+遇到问题时，请在 [GitHub Issues](https://github.com/lipeng3g/ai-relay/issues) 描述：
 
-## Project Structure
+- 使用的平台和页面；
+- AI Relay 侧边栏显示的状态；
+- 是否打开了抓取开关；
+- 可复现的操作步骤。
 
-```
-├── manifest.json         Extension manifest (MV3)
-├── background.js         Service worker (side panel setup)
-├── _locales/             Chrome i18n (en, zh_CN)
-├── icons/                Extension icons
-├── content/
-│   ├── content.js        Content script (isolated world)
-│   └── page-inject.js    Fetch interceptor (page world)
-├── lib/
-│   ├── i18n.js           Lightweight i18n layer
-│   ├── storage.js        chrome.storage wrapper
-│   ├── compress.js       Snapshot generation (LLM + fallback)
-│   ├── parsers.js        Platform-specific parsers (testable)
-│   └── session-store.js  Session state logic (testable)
-└── popup/
-    ├── popup.html        Side panel UI
-    ├── popup.css         Styles
-    └── popup.js          UI logic
-```
+请不要上传真实对话、邮箱、API Key、Cookie 或其他私人信息。可以使用截图或脱敏后的文字说明。
 
-## Development
+## 开发者信息
 
-### Debug Logging
-
-Enable debug logging in the extension's **Settings** tab, then check the browser's DevTools Console on any supported AI platform page.
-
-### Run Tests
-
-Tests live in a separate `test/` directory (not included in this repo). See the development repository for test fixtures and recording tools.
-
-## Roadmap
-
-- [x] **v0.2**: ChatGPT + Claude + Grok capture & relay, AI summary, i18n, side panel UI
-- [x] **v0.3** (current): Gemini support (Google BatchExecute RPC), recording infrastructure
-- [ ] **v0.4**: Chrome Web Store listing, auto-detect usage limits, one-click relay trigger
-- [ ] **v1.0**: Polish, landing page, more platforms
-
-## Contributing
-
-Issues and PRs are welcome! Please open an issue first for feature discussions.
-
-## License
-
-MIT
+本仓库中的 v0.3.2 是当前公开版本。开发测试、录制夹具和发布流程位于项目开发目录，不会随 Chrome Web Store 安装包发布。当前版本的扩展代码采用 MIT License，详见 [LICENSE](LICENSE)。

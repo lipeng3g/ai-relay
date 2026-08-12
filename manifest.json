@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "permissions": ["storage", "clipboardWrite", "activeTab", "sidePanel", "tabs"],
@@ -15,6 +15,17 @@
     "service_worker": "background.js"
   },
   "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://claude.ai/*",
+        "https://grok.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": ["lib/parsers.js", "content/page-inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
     {
       "matches": [
         "https://chatgpt.com/*",
@@ -41,16 +52,5 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["content/page-inject.js"],
-      "matches": [
-        "https://chatgpt.com/*",
-        "https://claude.ai/*",
-        "https://grok.com/*",
-        "https://gemini.google.com/*"
-      ]
-    }
-  ]
+  }
 }

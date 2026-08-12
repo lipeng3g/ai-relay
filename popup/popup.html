@@ -1,60 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>AI Relay</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
+  <svg class="icon-sprite" aria-hidden="true">
+    <symbol id="icon-relay" viewBox="0 0 24 24"><path d="M5 7h10.5M13 3.5 16.5 7 13 10.5M19 17H8.5M11 13.5 7.5 17l3.5 3.5"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.7 2.7L16.5 9"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-9 9"/><path d="M18 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></symbol>
+    <symbol id="icon-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-current" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="icon-history" viewBox="0 0 24 24"><path d="M4 7v5h5M5 12a7 7 0 1 0 2-5M12 8v4l3 2"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/></symbol>
+    <symbol id="icon-chatgpt" viewBox="0 0 24 24"><path d="M12 4.2a4 4 0 0 1 6.3 3.3 4 4 0 0 1 .2 7.5 4 4 0 0 1-6.5 3.8A4 4 0 0 1 5.7 16a4 4 0 0 1-.2-7.5A4 4 0 0 1 12 4.2Z"/><path d="m8.5 9 3.5-2 3.5 2v4L12 15l-3.5-2V9Z"/></symbol>
+    <symbol id="icon-claude" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></symbol>
+    <symbol id="icon-gemini" viewBox="0 0 24 24"><path d="M12 3c.7 5.2 3.8 8.3 9 9-5.2.7-8.3 3.8-9 9-.7-5.2-3.8-8.3-9-9 5.2-.7 8.3-3.8 9-9Z"/></symbol>
+    <symbol id="icon-grok" viewBox="0 0 24 24"><path d="M5 5l14 14M18 5 7 16M14 5h4v4"/></symbol>
+  </svg>
+  <div id="app-shell">
   <header class="hdr">
-    <div class="hdr-row">
-      <div class="sub" id="subtitle" data-i18n="loading"></div>
-      <div class="privacy-inline" data-i18n="privacy_inline"></div>
+    <div class="hdr-row hdr-main">
+      <div class="brand-mark" aria-hidden="true"><svg class="icon"><use href="#icon-relay"></use></svg></div>
       <div class="capture-toggle" id="capture-toggle-wrap">
         <span class="capture-label" id="capture-label" data-i18n="capture_off"></span>
         <label class="toggle-sm">
-          <input type="checkbox" id="toggle-capture" />
+          <input type="checkbox" id="toggle-capture" data-i18n-aria="capture_toggle_label" />
           <span class="toggle-slider-sm"></span>
         </label>
       </div>
     </div>
+    <div class="hdr-row hdr-context">
+      <div class="sub" id="subtitle" data-i18n="loading"></div>
+      <div class="privacy-inline"><svg class="icon icon-sm"><use href="#icon-lock"></use></svg><span data-i18n="privacy_inline"></span></div>
+    </div>
   </header>
 
-  <nav class="tabs">
-    <input type="radio" id="tab1" name="tab" checked />
-    <label for="tab1" data-i18n="tab_current"></label>
-    <input type="radio" id="tab2" name="tab" />
-    <label for="tab2" data-i18n="tab_history"></label>
-    <input type="radio" id="tab3" name="tab" />
-    <label for="tab3" data-i18n="tab_settings"></label>
+  <nav class="tabs" role="tablist" data-i18n-aria="tabs_label">
+    <button id="tab-current" role="tab" aria-selected="true" aria-controls="panel-current" tabindex="0"><svg class="icon"><use href="#icon-current"></use></svg><span data-i18n="tab_current"></span></button>
+    <button id="tab-history" role="tab" aria-selected="false" aria-controls="panel-history" tabindex="-1"><svg class="icon"><use href="#icon-history"></use></svg><span data-i18n="tab_history"></span></button>
+    <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1"><svg class="icon"><use href="#icon-settings"></use></svg><span data-i18n="tab_settings"></span></button>
+  </nav>
 
     <!-- Panel: Current -->
-    <section class="panel panel-current">
+    <section id="panel-current" class="panel panel-current active" role="tabpanel" aria-labelledby="tab-current">
       <div id="current-info" class="info">—</div>
       <div id="current-stats" class="stats-bar"></div>
 
-      <div id="current-preview" class="current-preview" style="display:none;"></div>
+      <div id="current-preview" class="current-preview" role="button" tabindex="0" style="display:none;"></div>
+
+      <div id="empty-state" class="empty-state" style="display:none;">
+        <div id="empty-state-title" class="empty-state-title"></div>
+        <div id="empty-state-body" class="empty-state-body"></div>
+        <button id="btn-retry-detection" class="secondary" data-i18n="btn_retry_detection"></button>
+      </div>
+      <div id="current-recent" class="current-recent" style="display:none;">
+        <div class="section-heading">
+          <span data-i18n="recent_fallback_title"></span>
+          <button id="btn-open-history" class="small-link" data-i18n="view_all"></button>
+        </div>
+        <div id="current-recent-list" class="compact-session-list"></div>
+      </div>
 
       <div class="action-group" id="action-group" style="display:none;">
-        <button id="btn-smart-copy" class="action-btn action-primary" disabled>
-          <span class="action-icon">⚡</span>
-          <span class="action-text">
-            <span class="action-title" data-i18n="btn_smart_copy"></span>
-            <span class="action-sub" data-i18n="mode_smart_desc"></span>
-          </span>
-        </button>
-        <button id="btn-full-copy" class="action-btn action-secondary" disabled>
-          <span class="action-icon">📋</span>
-          <span class="action-text">
-            <span class="action-title" data-i18n="btn_full_copy"></span>
-            <span class="action-sub" data-i18n="mode_full_desc"></span>
-          </span>
-        </button>
-        <div class="action-hint-text" data-i18n="action_hint"></div>
-        <div class="action-row">
-          <button id="btn-preview-current" class="small-link" disabled data-i18n="btn_preview"></button>
-          <span class="action-sep">·</span>
-          <span id="snapshot-size" class="snapshot-size-inline"></span>
+        <fieldset class="relay-mode" id="current-relay-mode">
+          <legend data-i18n="relay_mode_title"></legend>
+          <label class="mode-option">
+            <input type="radio" name="current-relay-mode" value="smart" checked />
+            <span class="mode-copy">
+              <span class="mode-title"><span data-i18n="mode_smart_name"></span><span class="recommended" data-i18n="recommended"></span></span>
+              <span class="mode-desc" data-i18n="mode_smart_desc"></span>
+            </span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="current-relay-mode" value="full" />
+            <span class="mode-copy">
+              <span class="mode-title" data-i18n="mode_full_name"></span>
+              <span class="mode-desc" data-i18n="mode_full_desc"></span>
+            </span>
+          </label>
+        </fieldset>
+        <div class="relay-estimate" id="relay-estimate"></div>
+        <button id="btn-copy-relay" class="primary" disabled><svg class="icon"><use href="#icon-copy"></use></svg><span data-i18n="btn_generate_copy"></span></button>
+        <button id="btn-preview-current" class="secondary" disabled><svg class="icon"><use href="#icon-eye"></use></svg><span data-i18n="btn_preview_relay"></span></button>
+      </div>
+
+      <div id="relay-status" class="relay-status" style="display:none;">
+        <div class="relay-status-heading"><svg class="icon"><use href="#icon-check"></use></svg><span id="relay-status-heading"></span></div>
+        <div class="relay-status-meta" id="relay-status-meta"></div>
+        <div class="relay-next-step" id="relay-next-step"></div>
+        <div class="relay-status-actions">
+          <button id="btn-preview-copied" class="small-link" data-i18n="btn_preview_relay"></button>
+          <button id="btn-recopy" class="small-link" data-i18n="btn_recopy"></button>
+          <button id="btn-cancel-relay" class="small-link muted" data-i18n="btn_cancel_relay"></button>
         </div>
       </div>
 
@@ -70,13 +114,26 @@
     </section>
 
     <!-- Panel: History -->
-    <section class="panel panel-recent">
+    <section id="panel-history" class="panel panel-recent" role="tabpanel" aria-labelledby="tab-history" hidden>
+      <div class="history-toolbar">
+        <input id="history-search" class="history-search" type="search" data-i18n="history_search_placeholder" />
+        <select id="history-platform" class="history-filter" data-i18n-aria="platform_filter_label">
+          <option value="all" data-i18n="platform_all"></option>
+          <option value="chatgpt">ChatGPT</option>
+          <option value="claude">Claude</option>
+          <option value="gemini">Gemini</option>
+          <option value="grok">Grok</option>
+        </select>
+      </div>
+      <div id="history-summary" class="history-summary"></div>
       <div id="recent-list" class="recent-list"></div>
+      <button id="btn-history-more" class="history-more" style="display:none;" data-i18n="btn_show_more"></button>
     </section>
 
     <!-- Panel: Settings -->
-    <section class="panel panel-settings">
-      <div class="setting-group">
+    <section id="panel-settings" class="panel panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <div class="settings-section-title" data-i18n="settings_relay_title"></div>
+      <div class="setting-group setting-card">
         <div class="setting-label" data-i18n="setting_turns_title"></div>
         <div class="setting-desc" data-i18n="setting_turns_desc"></div>
         <select id="select-recent-turns" class="setting-select">
@@ -86,52 +143,68 @@
           <option value="8"></option>
         </select>
       </div>
-      <div class="setting-group">
-        <div class="setting-label" data-i18n="setting_debug_title"></div>
-        <div class="setting-desc" data-i18n="setting_debug_desc"></div>
-        <label class="toggle">
-          <input type="checkbox" id="toggle-debug" />
-          <span class="toggle-slider"></span>
-        </label>
+      <div class="settings-section-title" data-i18n="settings_data_title"></div>
+      <div class="privacy-notice setting-card">
+        <b data-i18n="privacy_title"></b>
+        <div data-i18n="privacy_text"></div>
       </div>
-      <div class="setting-group">
+      <div class="setting-group setting-card danger-zone">
         <div class="setting-label" data-i18n="setting_clear_title"></div>
         <div class="setting-desc" data-i18n="setting_clear_desc"></div>
         <button id="btn-clear-all" class="danger-btn" data-i18n="btn_clear"></button>
       </div>
-      <div class="setting-group">
+      <div class="settings-section-title" data-i18n="settings_about_title"></div>
+      <div class="setting-group setting-card">
         <div class="setting-label" data-i18n="setting_about"></div>
         <div class="setting-desc">
           <span data-i18n="about_desc"></span><br />
           <a href="https://github.com/lipeng3g/ai-relay" target="_blank" id="link-github">GitHub</a>
         </div>
-        <div class="privacy-notice">
-          <b data-i18n="privacy_title"></b>：<span data-i18n="privacy_text"></span>
-        </div>
       </div>
+      <details class="advanced-settings setting-card">
+        <summary data-i18n="settings_advanced_title"></summary>
+        <div class="setting-group advanced-setting-row">
+          <div class="setting-label" data-i18n="setting_debug_title"></div>
+          <div class="setting-desc" data-i18n="setting_debug_desc"></div>
+          <label class="toggle">
+            <input type="checkbox" id="toggle-debug" data-i18n-aria="debug_toggle_label" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </details>
     </section>
-  </nav>
+  </div>
 
-  <!-- Snapshot preview (fullscreen) -->
-  <div id="preview-overlay" class="overlay" style="display:none;">
+  <!-- Relay text preview (fullscreen) -->
+  <div id="preview-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="preview-dialog-title" style="display:none;">
     <div class="overlay-header">
-      <span data-i18n="preview_title"></span>
+      <span id="preview-dialog-title" data-i18n="preview_title"></span>
       <span id="preview-stats" class="overlay-stats"></span>
-      <button id="btn-close-preview" class="close-btn">&times;</button>
+      <button id="btn-close-preview" class="close-btn" data-i18n-title="btn_close" data-i18n-aria="btn_close"><svg class="icon"><use href="#icon-close"></use></svg></button>
+    </div>
+    <div class="preview-explainer" data-i18n="preview_explainer"></div>
+    <div class="preview-mode-switch" id="preview-relay-mode">
+      <label><input type="radio" name="preview-relay-mode" value="smart" checked /><span data-i18n="mode_smart_name"></span></label>
+      <label><input type="radio" name="preview-relay-mode" value="full" /><span data-i18n="mode_full_name"></span></label>
     </div>
     <pre id="preview-text" class="preview-text"></pre>
     <div class="overlay-footer">
-      <button id="btn-copy-from-preview" class="primary" data-i18n="btn_copy_clipboard"></button>
+      <button id="btn-copy-from-preview" class="primary"><svg class="icon"><use href="#icon-copy"></use></svg><span data-i18n="btn_copy_clipboard"></span></button>
     </div>
   </div>
 
   <!-- Session detail overlay -->
-  <div id="detail-overlay" class="overlay" style="display:none;">
+  <div id="detail-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="detail-title" style="display:none;">
     <div class="overlay-header">
-      <span id="detail-title" data-i18n="detail_title"></span>
-      <a id="detail-source-link" class="detail-source-link" href="#" target="_blank" style="display:none;">↗</a>
-      <button id="btn-detail-delete" class="detail-del-btn" data-i18n-title="btn_delete_session">🗑</button>
-      <button id="btn-close-detail" class="close-btn">&times;</button>
+      <div class="overlay-heading-group">
+        <span class="overlay-kicker" data-i18n="detail_title"></span>
+        <span id="detail-title"></span>
+      </div>
+      <div class="overlay-header-actions">
+        <a id="detail-source-link" class="icon-action detail-source-link" href="#" target="_blank" style="display:none;" data-i18n-aria="btn_open_original"><svg class="icon"><use href="#icon-external"></use></svg></a>
+        <button id="btn-detail-delete" class="icon-action detail-del-btn" data-i18n-title="btn_delete_session" data-i18n-aria="btn_delete_session"><svg class="icon"><use href="#icon-trash"></use></svg></button>
+        <button id="btn-close-detail" class="icon-action close-btn" data-i18n-title="btn_close" data-i18n-aria="btn_close"><svg class="icon"><use href="#icon-close"></use></svg></button>
+      </div>
     </div>
     <div class="detail-body" id="detail-body"></div>
     <div id="detail-load-more" class="detail-load-more" style="display:none;">
@@ -139,17 +212,23 @@
       <span id="detail-paging" class="detail-paging"></span>
     </div>
     <div class="overlay-footer detail-footer">
-      <button id="btn-detail-smart" class="action-btn-sm action-primary-sm" data-i18n="btn_smart_copy"></button>
-      <button id="btn-detail-full" class="action-btn-sm action-secondary-sm" data-i18n="btn_full_copy"></button>
-      <button id="btn-detail-preview" class="action-btn-sm action-outline-sm" data-i18n="btn_preview"></button>
+      <div class="detail-relay-mode" id="detail-relay-mode">
+        <label><input type="radio" name="detail-relay-mode" value="smart" checked /><span data-i18n="mode_smart_name"></span></label>
+        <label><input type="radio" name="detail-relay-mode" value="full" /><span data-i18n="mode_full_name"></span></label>
+      </div>
+      <div class="detail-actions">
+        <button id="btn-detail-preview" class="action-btn-sm action-outline-sm"><svg class="icon"><use href="#icon-eye"></use></svg><span data-i18n="btn_preview_relay"></span></button>
+        <button id="btn-detail-copy" class="action-btn-sm action-primary-sm"><svg class="icon"><use href="#icon-copy"></use></svg><span data-i18n="btn_generate_copy"></span></button>
+      </div>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script src="../lib/i18n.js"></script>
   <script src="../lib/storage.js"></script>
   <script src="../lib/compress.js"></script>
+  <script src="../lib/ui-helpers.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
