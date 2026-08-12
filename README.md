@@ -1,81 +1,85 @@
 # AICarry
 
-把正在进行的 AI 对话带到另一个 AI，继续聊，不用重新解释背景。
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-AICarry 是一个 Chrome 扩展，帮助你在 ChatGPT、Claude、Gemini 和 Grok 之间继续同一段对话。它适合写作、学习、研究、编程和日常问答：当你想换一个 AI 时，先查看要携带的内容，再复制到新对话即可。
+Continue a conversation on another AI without explaining everything again.
 
-> 简单、可控、以隐私为先：抓取默认关闭，对话内容只在你的 Chrome 浏览器本地处理。
+AICarry is a Chrome extension that helps you carry an ongoing conversation between ChatGPT, Claude, Gemini, and Grok. It is designed for everyday writing, learning, research, coding, and problem-solving: review what will be carried, copy it, and continue on another AI.
 
-## 你可以用它做什么？
+> Simple, user-controlled, and privacy-first: capture is off by default, and conversation data is processed locally in your Chrome browser.
 
-- 在不同 AI 平台之间继续同一个任务；
-- 保留问题、回答、代码和最近的上下文；
-- 长对话使用“精简接力”，短对话使用“完整接力”；
-- 先预览 AICarry 要复制的内容，再决定是否使用；
-- 在侧边栏查看和管理本地会话历史；
-- 使用中文或英文界面。
+## What AICarry does
 
-## 使用方法
+- Continues the same task across supported AI platforms;
+- Preserves questions, answers, code, and recent context;
+- Offers a concise relay for long conversations and a full relay for short ones;
+- Lets you preview the relay text before copying it;
+- Keeps local conversation history manageable from the side panel;
+- Provides English and Simplified Chinese interfaces.
 
-1. 打开 ChatGPT、Claude、Gemini 或 Grok；
-2. 打开 AICarry 侧边栏，并在需要时打开“抓取”开关；
-3. 正常完成你的对话；
-4. 选择“精简接力”或“完整接力”；
-5. 预览内容，确认无误后点击复制；
-6. 打开另一个 AI 平台，把内容粘贴到新对话中。
+## How it works
 
-AICarry 不会替你自动发送消息。你始终可以在复制和粘贴之前检查内容。
+1. Open ChatGPT, Claude, Gemini, or Grok.
+2. Open the AICarry side panel and turn on capture when you need it.
+3. Continue your conversation normally.
+4. Choose **Concise Relay** or **Full Relay**.
+5. Preview the result, then copy it.
+6. Open another AI platform and paste the relay text into a new conversation.
 
-## 支持的平台
+AICarry never sends a message for you. You remain in control and can inspect the text before copying and pasting it.
 
-| 平台 | 抓取对话 | 生成接力文本 |
+## Supported platforms
+
+| Platform | Conversation capture | Relay generation |
 | --- | --- | --- |
-| ChatGPT (`chatgpt.com`) | 支持 | 支持 |
-| Claude (`claude.ai`) | 支持 | 支持 |
-| Gemini (`gemini.google.com`) | 支持 | 支持 |
-| Grok (`grok.com`) | 支持 | 支持 |
+| ChatGPT (`chatgpt.com`) | Supported | Supported |
+| Claude (`claude.ai`) | Supported | Supported |
+| Gemini (`gemini.google.com`) | Supported | Supported |
+| Grok (`grok.com`) | Supported | Supported |
 
-平台网站的登录、账号限制和内容政策仍由各平台负责。AICarry 只提供本地的整理和复制工具。
+Each platform remains responsible for its own login, account limits, availability, and content policies. AICarry only provides local capture, organization, preview, and copy tools.
 
-## 隐私，用普通话说明
+## Privacy in plain English
 
-- **抓取默认关闭。** 只有你主动打开开关后，扩展才会在四个支持的平台页面观察对话响应。
-- **对话在浏览器本地处理。** AICarry v0.3.3 没有账号系统、计费后台、分析统计、广告、遥测或开发者运营的对话服务器。
-- **数据保存在你的 Chrome 配置中。** 会话和设置使用 `chrome.storage.local` 保存，不会同步到 AICarry 服务器。
-- **复制由你决定。** 只有你点击复制后，接力文本才会写入系统剪贴板；之后由你决定粘贴到哪个应用。
-- **权限范围有限。** 扩展只请求四个支持的 AI 域名，不在其他网站运行抓取桥接代码。
+- **Capture is off by default.** AICarry observes conversation responses on supported websites only after you turn capture on.
+- **Conversation data is processed locally.** AICarry v0.3.3 has no account system, billing backend, advertising, analytics, telemetry, or developer-operated conversation server.
+- **Data stays in your Chrome profile.** Conversations and settings are stored with `chrome.storage.local` and are not synchronized to an AICarry server.
+- **Copying is your decision.** Relay text reaches the system clipboard only after you click copy. You decide where to paste it.
+- **Site access is limited.** The extension requests access only to the four supported AI domains and does not run its capture bridge on other websites.
 
-请注意：Chrome 本地存储和系统剪贴板不是加密保险箱。不要在不信任的设备上保留敏感对话，也不要把不该分享的内容粘贴到目标 AI。
+Chrome local storage and the system clipboard are not encrypted vaults. Do not retain sensitive conversations on an untrusted device or paste information that should not be shared with the destination AI.
 
-完整说明请阅读 [隐私政策](PRIVACY.md)。
+Read the complete [Privacy Policy](PRIVACY.md).
 
-## 安装
+## Installation
 
-Chrome Web Store 商品正在准备中。商品上线后，建议从商店安装；在商店版本可用前，可以按下面的方法手动安装：
+The Chrome Web Store listing is currently under review. Once it is available, installing from the store will be the recommended option. Until then, you can install AICarry manually:
 
-1. 下载本仓库，解压到本地；
-2. 在 Chrome 地址栏打开 `chrome://extensions`；
-3. 打开右上角的“开发者模式”；
-4. 点击“加载已解压的扩展程序”，选择本仓库中的 `extension/` 目录（如果你下载的是商店 ZIP，则选择解压后的根目录）；
-5. 将 AICarry 固定到工具栏。
+1. Download and extract this repository.
+2. Open `chrome://extensions` in Chrome.
+3. Turn on **Developer mode**.
+4. Click **Load unpacked** and select the extracted repository root. If you are working from the development repository, select its `extension/` directory instead.
+5. Pin AICarry to the Chrome toolbar.
 
-## 当前版本
+## Current version
 
-当前版本：**v0.3.3**
+Current version: **v0.3.3**
 
-这是一个免费、本地优先的首发版本。未来版本可能采用不同的分发或商业模式；如果发生变化，我们会在新版本的商店页面、发行说明和隐私政策中明确说明。已经发布的代码仍按仓库中附带的 MIT License 适用。
+This is a free, local-first initial release. Future versions may use a different distribution or commercial model. Any such change will be disclosed in the relevant store listing, release notes, and privacy policy. Code already published in this repository remains subject to the included MIT License.
 
-## 获取帮助
+## Support and security
 
-遇到问题时，请在 [GitHub Issues](https://github.com/lipeng3g/ai-relay/issues) 描述：
+For help, open a [GitHub issue](https://github.com/lipeng3g/ai-relay/issues) and include:
 
-- 使用的平台和页面；
-- AICarry 侧边栏显示的状态；
-- 是否打开了抓取开关；
-- 可复现的操作步骤。
+- The AI platform and page you were using;
+- The status shown in the AICarry side panel;
+- Whether capture was enabled;
+- Steps that reproduce the problem.
 
-请不要上传真实对话、邮箱、API Key、Cookie 或其他私人信息。可以使用截图或脱敏后的文字说明。
+Do not include real conversations, email addresses, API keys, cookies, or other private information. Use redacted screenshots or sanitized examples.
 
-## 开发者信息
+If a report may expose user data or create a security risk, do not post sensitive details in a public issue. Start with a minimal, redacted report so a private follow-up channel can be arranged.
 
-本仓库中的 v0.3.3 是当前公开版本。开发测试、录制夹具和发布流程位于项目开发目录，不会随 Chrome Web Store 安装包发布。当前版本的扩展代码采用 MIT License，详见 [LICENSE](LICENSE)。
+## License
+
+The currently published extension code is licensed under the [MIT License](LICENSE).
